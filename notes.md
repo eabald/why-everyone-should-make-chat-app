@@ -13,7 +13,7 @@ Ok, but why? What makes chat app so special?
 
 ### A. Because everyone does?
 
-It's because everyone does chat apps? Everyone made one?
+It's because everyone is making chat apps? Everyone made one?
 
 ### B. Because it's easy?
 
@@ -33,7 +33,7 @@ Ok, but what this kind of app should have? What is complete must and what is opt
 
 ### A. Real time communication
 
-First of all, real time communication. It's something what makes chat app. Without it I don't think we can even call it chat app. No matter if we use HTTP long pooling or Web Sockets it's the more challenging part of whole chat app.
+First of all, real time communication. It's something what makes chat app. Without it I don't think we can even call it chat app. No matter if we use HTTP long pooling or Web Sockets it's the most challenging part of whole chat app.
 
 ### B. Rooms/user-to-user messaging
 
@@ -45,11 +45,11 @@ Let's state that once for all. Every chat app needs Emoji. You even can't call i
 
 ### D. Images upload
 
-Next nice to have thing is image upload. Let's be honest, how to use chat app when one can't send mems to their friends? This task has it's own challenges and in most cases requires different solutions than other parts of the app.
+Next nice to have thing is image upload. This task has it's own challenges and in most cases requires different solutions than other parts of the app.
 
 ### E. Chat-bots
 
-If You like to crank up your app to 11, add chat bot, or better two. This kind of feature often require some external integrations which are always good. It shows the ability to use external sources and to integrate them smoothly.
+If we like to crank up your app to 11, we should add chat bot, or better two. This kind of feature often require some external integrations which are something nice to have. It shows the ability to use external sources and to integrate them smoothly.
 
 ## 4. Is chat app perfect showcase app?
 
@@ -70,7 +70,7 @@ If our goal is to show:
 
 ### G. In general, good craftsmanship
 
-If thats what you want, great. It will work.
+If thats what you want, great. It will work just fine.
 
 ## 3. But, on the other hand, if we want to show off
 
@@ -90,35 +90,35 @@ Ok, enough of that. Now let's talk about how we did it.
 
 ### A. Devhouse Chat Rabbitmq Nest Next Lambda - Devhouse Chat
 
-Name is a bit lengthy so we shorten it to Devhouse Chat, but the idea behind it was to reflect main technologies involved.
+Name is a bit lengthy so we've shorten it to Devhouse Chat, but the idea behind it was to reflect main technologies involved.
 
 ### B. Architecture && stack
 
-In case of architecture our take is something in between Event Driven and Domain Driven with layered flavour. Backend elements are encapsulated in domain driven way but most of the communication between them is done by events.
+In case of architecture our take is something in between Event Driven and Domain Driven with layered flavour. Backend elements are encapsulated in domain driven way but most of the communication between them is done by events. So a little of controlled chaos.
 
-1. Client - Frontend part of the system contains Next.js app with help of Material ui, communication with backend happens via web socket (socket.io) and http requests with axios. Application state is handled by Redux Toolkit.
-2. Main - nest js - Main element of app backend is Typescript and Nest.js app. It provides basic structure and nice layer of abstraction to hide some unimportant implementation details (of course unimportant from our point of view).
-    * gateways - Nest.js gives us unique opportunity to abstract web sockets implementation into gateways which nicely encapsulates whole logic and allows us to focus on important elements. Also this gateways pushes events into messaging queue.
-    * rabbitMQ - All the events are handled by message broker, RabbitMQ in that case. This solution allows to dispatch events properly and without additional overhead. Also adding RabbitMQ is a nice case of integrating different technologies into the system.
-    * rest endpoints - some functionalities also needed rest endpoints to work properly, for example images upload. 
-    * prisma & persistence - Next important element is data persistance. In order to achieve that SQLite database with Prisma orm was used. Maybe sql database is not optimal in chat app but tiny footprint of SQLite is fair tradeoff in that case. Additionally usage of Prisma gives us nice, type safe way to interact with database.
-    * file storage - Images upload leaves us with a need for some kind of storage solution. At the beginning we've tried to use Zenko Cloudserver to mimic AWS S3 storage, but after a lot of problems with integration we have pivot to use MinIO Object Storage. After that everything went smoothly and there was no more problems with file storage.
-    * axios - In case of outside communication from Nest.js to other services via http protocol Nest.js http service was used (with axios underneath). That was easy solution and didn't require any additional work, so here decision was easy.
+1. Frontend part of the system contains Next.js app with help of Material ui, communication with backend happens via web socket (socket.io) and http requests with axios. Application state is handled by Redux Toolkit.
+2. Main element of app backend is Typescript and Nest.js app. It provides basic structure and nice layer of abstraction to hide some unimportant implementation details (of course unimportant from our point of view).
+    * Nest.js gives us unique opportunity to abstract web sockets implementation into gateways which nicely encapsulates whole logic and allows us to focus on important elements. Also this gateways pushes events into messaging queue.
+    * All the events are handled by message broker, RabbitMQ in that case. This solution allows to dispatch events properly and without additional overhead. Also adding RabbitMQ is a nice case of integrating different technologies into the system.
+    * Some functionalities also needed rest endpoints to work properly, for example images upload. 
+    * Next important element is data persistance. In order to achieve that SQLite database with Prisma orm was used. Maybe sql database is not optimal in chat app but tiny footprint of SQLite is fair tradeoff in that case. Additionally usage of Prisma gives us nice, type safe way to interact with database.
+    * Images upload leaves us with a need for some kind of storage solution. At the beginning we've tried to use Zenko Cloudserver to mimic AWS S3 storage, but after a lot of problems with integration we have pivot to use MinIO Object Storage. After that everything went smoothly and there was no more problems with file storage.
+    * In case of outside communication from Nest.js to other services via http protocol Nest.js http service was used (with axios underneath). That was straightforward solution and didn't require any additional work, so here decision was easy.
 
-3. Commands & lambdas - Another important part of the whole system are Chat bots. In our case there were two of them, one returning weather info based on supplied location and another one serving random memes from reddit. Here approach was slightly different than in other parts of the system. Serverless framework was used to create AWS lambda functions. Each one was separate endpoint encapsulating whole logic for each bot.
-4. Docker, lerna & devcontainer - Last part of the system ties everything up. Services like RabbitMQ and MinIO was closed in docker containers, other parts of the system was also encapsulated in one docker container what allows to use it as development container in vscode. To orchestrate all npm packages Lerna was used. Solution composed like this elevates whole idea of development environment encapsulation to new level.
+3. Another important part of the whole system are Chat bots. In our case there were two of them, one returning weather info based on supplied location and another one serving random memes from reddit. Here approach was slightly different than in other parts of the system. Serverless framework was used to create AWS lambda functions. Each one was separate endpoint encapsulating whole logic for each bot.
+4. Last part of the system ties everything up. Services like RabbitMQ and MinIO was closed in docker containers, other parts of the system was also encapsulated in one docker container what allows to use it as development container in vscode. To orchestrate all npm packages Lerna was used. Solution composed like this elevates whole idea of development environment encapsulation to new level.
 
 ## 5. Demo
 
-1. Login page - Here we can create user, which is persisted in database. Also current user is stored in redux store and local storage. Currently there's no any other authentication. But username have to be unique. Login process happens via web socket.
-2. Rooms messaging - By default there are three rooms created. Hello, nodejs and typescript. Users can freely switch between them.
-3. Adding rooms - Also users can create new rooms. This process also happens via web socket, and new rooms are stored in database. And of course rooms names have to be unique.
-4. Images upload - Additionally users can message images. They are sent via http, stored in MinIO Object Storage and new message with them is created and send back via websocket.
-5. Emoji - As I said before, Emojis are the crucial element of each chat app. It can't work without them. I our case they can be added in two ways. First of all there's a picker, component taken from emoji-mart library. Another way is using emoji short codes which are filtered by emojify method from node-emoji library. 
-6. Chat bots - By typing special commands instead of message user is able to invoke bot response. Two commands are available, first one /Weather followed by place name returns information about temperature in requested place as a response. Another one, /Meme returns random meme form reddit.
-7. History persistance - All the messages and images are stored and persistent but to avoid issues with storage of both of them they are persisted only for one hour. On the backend there are couple of scheduled tasks running every minute and deleting messages and images older than 1 hour. It uses Nest.js schedule module.
-8. User-to-user communication - Also users can communicate using direct messages. This kind of messages works like private rooms with only two users.
-9. 4-6 in user-to-user communication - All the functionalities available in public rooms are also available in direct messages - messages persistence, images, emoji.
+1. Here we can create user, which is persisted in database. Also current user is stored in redux store and local storage. Currently there's no any other authentication. But username have to be unique. Login process happens via web socket.
+2. By default there are three rooms created. Hello, nodejs and typescript. Users can freely switch between them.
+3. Also users can create new rooms. This process also happens via web socket, and new rooms are stored in database. And of course rooms names have to be unique.
+4. Additionally users can message images. They are sent via http, stored in MinIO Object Storage and new message with them is created and send back via websocket.
+5. As I said before, Emojis are the crucial element of each chat app. It can't work without them. I our case they can be added in two ways. First of all there's a picker, component taken from emoji-mart library. Another way is using emoji short codes which are filtered by emojify method from node-emoji library. 
+6. By typing special commands instead of message user is able to invoke bot response. Two commands are available, first one /Weather followed by place name returns information about temperature in requested place as a response. Another one, /Meme returns random meme form reddit.
+7. All the messages and images are stored and persistent but to avoid issues with storage of both of them they are persisted only for one hour. On the backend there are couple of scheduled tasks running every minute and deleting messages and images older than 1 hour. It uses Nest.js schedule module.
+8. Also users can communicate using direct messages. This kind of messages works like private rooms with only two users. All the functionalities available in public rooms are also available in direct messages - messages persistence, images, emoji.
+
 ## 6. Is it the best?
 
 Ok, now we have to answer important question. Is our take on chat app the best?
@@ -133,7 +133,7 @@ Ok, lets get back to reality. Our app also has its flaws. But on the other hand 
 
 ## 7. Again why you should have your own chat app?
 
-I believe that benefits of having a chat app in our portfolio are clear now. It's nice challenge allowing learn new things while doing fun stuff. Also can create different problems and challenges depending on our skills and goals we've set. It's perfect way to show off good craftsmanship and versatility. And keep on learning what's for me essential in our jobs.
+I believe that benefits of having a chat app in our portfolio are clear now. It's nice challenge allowing learn new things while doing fun stuff. Also can create different problems and challenges depending on our skills and goals we've set. It's perfect way to show off good craftsmanship and versatility.
 
 ## 8. Thank You
 
