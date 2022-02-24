@@ -45,7 +45,7 @@ Let's state that once for all. Every chat app needs Emoji. You even can't call i
 
 ### D. Images upload
 
-Next nice to have thing is image upload. This task has it's own challenges and in most cases requires different solutions than other parts of the app.
+Next nice to have thing are images upload. This task has it's own challenges and in most cases requires different solutions than other parts of the app.
 
 ### E. Chat-bots
 
@@ -96,17 +96,17 @@ Name is a bit lengthy so we've shorten it to Devhouse Chat, but the idea behind 
 
 In case of architecture our take is something in between Event Driven and Domain Driven with layered flavour. Backend elements are encapsulated in domain driven way but most of the communication between them is done by events. So a little bit of controlled chaos.
 
-1. Frontend part of the system contains Next.js app with help of Material ui, communication with backend happens via web socket (socket.io) and http requests with axios. Application state is handled by Redux Toolkit.
-2. Main element of app backend is Typescript and Nest.js app. It provides basic structure and nice layer of abstraction to hide some unimportant implementation details (of course unimportant in this case).
+1. Frontend part of the system builds Next.js app with help of Material ui, communication with backend happens via web socket (socket.io) and http requests with axios. Application state is handled by Redux Toolkit.
+2. Main element of backend is Typescript and Nest.js app. It provides basic structure and nice layer of abstraction to hide some unimportant implementation details (of course unimportant in this case).
     * Nest.js gives us unique opportunity to abstract web sockets implementation into gateways which nicely encapsulates whole logic and allows us to focus on important elements. Also this gateways pushes events into messaging queue.
     * All the events are handled by message broker, RabbitMQ in that case. This solution allows to dispatch events properly and without additional overhead. Also adding RabbitMQ is a nice case of integrating different technologies into the system.
     * Some functionalities also needed rest endpoints to work properly, for example images upload.
     * Next important element is data persistance. In order to achieve that SQLite database with Prisma orm was used. Maybe sql database is not optimal in chat app but tiny footprint of SQLite is fair tradeoff in that case. Additionally usage of Prisma gives us nice, type safe way to interact with database.
     * Images upload leaves us with a need for some kind of storage solution. At the beginning we've tried to use Zenko Cloudserver to mimic AWS S3 bucket, but after a lot of problems with integration we have pivot to use MinIO Object Storage. After that everything went smoothly and there was no more problems with file storage.
-    * In case of outside communication from Nest.js to other services via http protocol Nest.js http service was used (with axios underneath). That was straightforward solution and didn't require any additional work, so here decision was easy.
+    * In case of outside communication from Nest.js to other services via http protocol built-in Nest.js http service was used. That was straightforward solution and didn't require any additional work, so here decision was easy.
 
 3. Another important part of the whole system are Chat bots. In our case there were two of them, one returning weather info based on supplied location and another one serving random memes from reddit. Here approach was slightly different than in other parts of the system. Serverless framework was used to create AWS lambda functions. Each one was separate endpoint encapsulating whole logic for each bot.
-4. Last part of the system ties everything up. Services like RabbitMQ and MinIO was closed in docker containers, other parts of the system was also encapsulated in one docker container what allows to use it as development container in vscode. To orchestrate all npm packages Lerna was used. Solution composed like this elevates whole idea of development environment encapsulation to new level.
+4. Last part of the system ties everything up. Services like RabbitMQ and MinIO was closed in docker containers, other parts of the system was also encapsulated in one docker container what allows to use it as dev container in vscode. To orchestrate all npm packages Lerna was used. Solution composed like this elevates whole idea of development environment encapsulation to new level.
 
 ## 5. Demo
 
