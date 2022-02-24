@@ -94,15 +94,15 @@ Name is a bit lengthy so we've shorten it to Devhouse Chat, but the idea behind 
 
 ### B. Architecture && stack
 
-In case of architecture our take is something in between Event Driven and Domain Driven with layered flavour. Backend elements are encapsulated in domain driven way but most of the communication between them is done by events. So a little of controlled chaos.
+In case of architecture our take is something in between Event Driven and Domain Driven with layered flavour. Backend elements are encapsulated in domain driven way but most of the communication between them is done by events. So a little bit of controlled chaos.
 
 1. Frontend part of the system contains Next.js app with help of Material ui, communication with backend happens via web socket (socket.io) and http requests with axios. Application state is handled by Redux Toolkit.
-2. Main element of app backend is Typescript and Nest.js app. It provides basic structure and nice layer of abstraction to hide some unimportant implementation details (of course unimportant from our point of view).
+2. Main element of app backend is Typescript and Nest.js app. It provides basic structure and nice layer of abstraction to hide some unimportant implementation details (of course unimportant in this case).
     * Nest.js gives us unique opportunity to abstract web sockets implementation into gateways which nicely encapsulates whole logic and allows us to focus on important elements. Also this gateways pushes events into messaging queue.
     * All the events are handled by message broker, RabbitMQ in that case. This solution allows to dispatch events properly and without additional overhead. Also adding RabbitMQ is a nice case of integrating different technologies into the system.
-    * Some functionalities also needed rest endpoints to work properly, for example images upload. 
+    * Some functionalities also needed rest endpoints to work properly, for example images upload.
     * Next important element is data persistance. In order to achieve that SQLite database with Prisma orm was used. Maybe sql database is not optimal in chat app but tiny footprint of SQLite is fair tradeoff in that case. Additionally usage of Prisma gives us nice, type safe way to interact with database.
-    * Images upload leaves us with a need for some kind of storage solution. At the beginning we've tried to use Zenko Cloudserver to mimic AWS S3 storage, but after a lot of problems with integration we have pivot to use MinIO Object Storage. After that everything went smoothly and there was no more problems with file storage.
+    * Images upload leaves us with a need for some kind of storage solution. At the beginning we've tried to use Zenko Cloudserver to mimic AWS S3 bucket, but after a lot of problems with integration we have pivot to use MinIO Object Storage. After that everything went smoothly and there was no more problems with file storage.
     * In case of outside communication from Nest.js to other services via http protocol Nest.js http service was used (with axios underneath). That was straightforward solution and didn't require any additional work, so here decision was easy.
 
 3. Another important part of the whole system are Chat bots. In our case there were two of them, one returning weather info based on supplied location and another one serving random memes from reddit. Here approach was slightly different than in other parts of the system. Serverless framework was used to create AWS lambda functions. Each one was separate endpoint encapsulating whole logic for each bot.
@@ -114,10 +114,10 @@ In case of architecture our take is something in between Event Driven and Domain
 2. By default there are three rooms created. Hello, nodejs and typescript. Users can freely switch between them.
 3. Also users can create new rooms. This process also happens via web socket, and new rooms are stored in database. And of course rooms names have to be unique.
 4. Additionally users can message images. They are sent via http, stored in MinIO Object Storage and new message with them is created and send back via websocket.
-5. As I said before, Emojis are the crucial element of each chat app. It can't work without them. I our case they can be added in two ways. First of all there's a picker, component taken from emoji-mart library. Another way is using emoji short codes which are filtered by emojify method from node-emoji library. 
+5. As I said before, Emojis are the crucial element of each chat app. It can't work without them. I our case they can be added in two ways. First of all there's a picker component taken from emoji-mart library. Another way is using emoji short codes which are filtered by emojify method from node-emoji library.
 6. By typing special commands instead of message user is able to invoke bot response. Two commands are available, first one /Weather followed by place name returns information about temperature in requested place as a response. Another one, /Meme returns random meme form reddit.
 7. All the messages and images are stored and persistent but to avoid issues with storage of both of them they are persisted only for one hour. On the backend there are couple of scheduled tasks running every minute and deleting messages and images older than 1 hour. It uses Nest.js schedule module.
-8. Also users can communicate using direct messages. This kind of messages works like private rooms with only two users. All the functionalities available in public rooms are also available in direct messages - messages persistence, images, emoji.
+8. Also users can communicate using direct messages. This kind of messages works like private rooms with only two users. All the functionalities available in public rooms are also available in direct messages - persistence, images, emoji.
 
 ## 6. Is it the best?
 
